@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation API - Port de Russell</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
+        header { background-color: #343a40; color: white; padding: 30px 20px; text-align: center; }
+        header h1 { margin: 0; font-size: 28px; }
+        header p { margin: 5px 0 0 0; color: #bbb; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        .section-title { border-bottom: 2px solid #0275d8; color: #0275d8; padding-bottom: 8px; margin-top: 40px; }
+        .route-card { background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #ccc; overflow: hidden; }
+        
+        /* Couleurs par méthode HTTP */
+        .get { border-left-color: #5cb85c; }
+        .get .method { background-color: #5cb85c; }
+        .post { border-left-color: #0275d8; }
+        .post .method { background-color: #0275d8; }
+        .put { border-left-color: #f0ad4e; }
+        .put .method { background-color: #f0ad4e; }
+        .delete { border-left-color: #d9534f; }
+        .delete .method { background-color: #d9534f; }
+        
+        .route-header { display: flex; align-items: center; padding: 10px 15px; background-color: #fafafa; font-family: monospace; font-size: 16px; }
+        .method { color: white; padding: 4px 8px; border-radius: 3px; font-weight: bold; margin-right: 15px; font-size: 12px; width: 60px; text-align: center; }
+        .path { font-weight: bold; color: #444; }
+        .route-body { padding: 15px; border-top: 1px solid #eee; font-size: 14px; }
+        .route-desc { margin: 0 0 10px 0; font-weight: 500; }
+        
+        pre { background-color: #272822; color: #f8f8f2; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 13px; margin: 5px 0; }
+        .badge { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚓ Spécifications techniques de l'API</h1>
+    <p>Port de plaisance de Russell — Version 1.0.0 (Privée)</p>
+</header>
+
+<div class="container">
+    <p>Cette documentation répertorie l'ensemble des points d'accès (endpoints) mis à disposition pour la gestion de la capitainerie. Les réponses de l'API sont toutes au format <span class="badge">JSON</span>.</p>
+
+    <h2 class="section-title">🛶 1. Gestion des Catways</h2>
+    
+    <div class="route-card get">
+        <div class="route-header"><span class="method">GET</span><span class="path">/catways</span></div>
+        <div class="route-body">
+            <p class="route-desc">Récupère la liste complète de tous les catways du port.</p>
+            <strong>Réponse (200 OK) :</strong>
+            <pre>[ { "_id": "...", "catwayNumber": 12, "catwayType": "long", "catwayState": "Bon état" } ]</pre>
+        </div>
+    </div>
+
+    <div class="route-card get">
+        <div class="route-header"><span class="method">GET</span><span class="path">/catways/:id</span></div>
+        <div class="route-body">
+            <p class="route-desc">Récupère les détails d'un catway spécifique via son numéro (<span class="badge">:id</span>).</p>
+        </div>
+    </div>
+
+    <div class="route-card post">
+        <div class="route-header"><span class="method">POST</span><span class="path">/catways</span></div>
+        <div class="route-body">
+            <p class="route-desc">Crée un nouveau catway.</p>
+            <strong>Corps de la requête (JSON) :</strong>
+            <pre>{ "catwayNumber": 15, "catwayType": "short", "catwayState": "Neuf" }</pre>
+        </div>
+    </div>
+
+    <div class="route-card put">
+        <div class="route-header"><span class="method">PUT</span><span class="path">/catways/:id</span></div>
+        <div class="route-body">
+            <p class="route-desc">Modifie la description de l'état d'un catway (le numéro et le type ne sont pas modifiables).</p>
+            <strong>Corps de la requête (JSON) :</strong>
+            <pre>{ "catwayState": "Travaux requis sur la passerelle" }</pre>
+        </div>
+    </div>
+
+    <div class="route-card delete">
+        <div class="route-header"><span class="method">DELETE</span><span class="path">/catways/:id</span></div>
+        <div class="route-body">
+            <p class="route-desc">Supprime un catway de la base de données.</p>
+        </div>
+    </div>
+
+
+    <h2 class="section-title">📅 2. Gestion des Réservations</h2>
+    
+    <div class="route-card get">
+        <div class="route-header"><span class="method">GET</span><span class="path">/catways/:id/reservations</span></div>
+        <div class="route-body">
+            <p class="route-desc">Liste toutes les réservations associées à un catway spécifique.</p>
+        </div>
+    </div>
+
+    <div class="route-card get">
+        <div class="route-header"><span class="method">GET</span><span class="path">/catways/:id/reservations/:idReservation</span></div>
+        <div class="route-body">
+            <p class="route-desc">Récupère le détail d'une réservation précise.</p>
+        </div>
+    </div>
+
+    <div class="route-card post">
+        <div class="route-header"><span class="method">POST</span><span class="path">/catways/:id/reservations</span></div>
+        <div class="route-body">
+            <p class="route-desc">Crée une réservation rattachée au catway fourni.</p>
+            <strong>Corps de la requête (JSON) :</strong>
+            <pre>{ "clientName": "Alice Dupont", "boatName": "Le Poséidon", "startDate": "2026-07-01", "endDate": "2026-07-15" }</pre>
+        </div>
+    </div>
+
+    <div class="route-card put">
+        <div class="route-header"><span class="method">PUT</span><span class="path">/catways/:id/reservations/:idReservation</span></div>
+        <div class="route-body">
+            <p class="route-desc">Met à jour les informations d'une réservation existante.</p>
+        </div>
+    </div>
+
+    <div class="route-card delete">
+        <div class="route-header"><span class="method">DELETE</span><span class="path">/catways/:id/reservations/:idReservation</span></div>
+        <div class="route-body">
+            <p class="route-desc">Annule et supprime une réservation.</p>
+        </div>
+    </div>
+
+
+    <h2 class="section-title">👥 3. Gestion des Utilisateurs & Authentification</h2>
+    
+    <div class="route-card get">
+        <div class="route-header"><span class="method">GET</span><span class="path">/users</span></div>
+        <div class="route-body">
+            <p class="route-desc">Liste les comptes du personnel de la capitainerie (mots de passe masqués).</p>
+        </div>
+    </div>
+
+    <div class="route-card post">
+        <div class="route-header"><span class="method">POST</span><span class="path">/users</span></div>
+        <div class="route-body">
+            <p class="route-desc">Enregistre un nouvel utilisateur (le mot de passe est automatiquement haché avec Bcrypt).</p>
+        </div>
+    </div>
+
+    <div class="route-card put">
+        <div class="route-header"><span class="method">PUT</span><span class="path">/users/:email</span></div>
+        <div class="route-body">
+            <p class="route-desc">Modifie le nom ou le mot de passe d'un utilisateur repéré par son adresse email.</p>
+        </div>
+    </div>
+
+    <div class="route-card delete">
+        <div class="route-header"><span class="method">DELETE</span><span class="path">/users/:email</span></div>
+        <div class="route-body">
+            <p class="route-desc">Supprime un utilisateur de la capitainerie.</p>
+        </div>
+    </div>
+
+    <div class="route-card post">
+        <div class="route-header"><span class="method">POST</span><span class="path">/login</span></div>
+        <div class="route-body">
+            <p class="route-desc">Vérifie les identifiants et initialise la session de l'agent.</p>
+        </div>
+    </div>
+
+    <div class="route-card get">
+        <div class="route-header"><span class="method">GET</span><span class="path">/logout</span></div>
+        <div class="route-body">
+            <p class="route-desc">Détruit la session courante et redirige vers l'accueil.</p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

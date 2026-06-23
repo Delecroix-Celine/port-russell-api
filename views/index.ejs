@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port de Russell - Gestion des amarrages</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .container { background-color: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 400px; width: 100%; text-align: center; }
+        h1 { color: #0275d8; margin-bottom: 10px; }
+        p { color: #666; font-size: 14px; line-height: 1.5; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
+        input[type="email"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #0275d8; border: none; border-radius: 4px; color: white; font-size: 16px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #0157a0; }
+        .footer-links { margin-top: 25px; font-size: 13px; }
+        .footer-links a { color: #0275d8; text-decoration: none; }
+        .footer-links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⚓ Port de Russell</h1>
+    <p>Bienvenue sur l'application privée de la capitainerie. Cet outil vous permet de gérer les catways du port, le suivi complet des réservations ainsi que les comptes utilisateurs du personnel.</p>
+
+    <form action="/login" method="POST">
+        <div class="form-group">
+            <label for="email">Adresse email professionnel</label>
+            <input type="email" id="email" name="email" placeholder="exemple@port-russell.fr" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" name="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit">Se connecter</button>
+    </form>
+
+    <div class="footer-links">
+        <a href="/docs" target="_blank">📄 Accéder à la documentation de l'API</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord - Capitainerie</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f8f9fa; display: flex; }
+        .sidebar { width: 250px; background-color: #343a40; color: white; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .sidebar h2 { color: #0275d8; text-align: center; margin-bottom: 30px; }
+        .sidebar a { display: block; color: #ddd; padding: 12px; text-decoration: none; border-radius: 4px; margin-bottom: 10px; font-weight: bold; }
+        .sidebar a:hover { background-color: #495057; color: white; }
+        .sidebar a.logout { background-color: #d9534f; color: white; margin-top: 50px; text-align: center; }
+        .sidebar a.logout:hover { background-color: #c9302c; }
+        .main-content { flex: 1; padding: 40px; }
+        .header-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .user-info h3 { margin: 0; color: #333; }
+        .user-info p { margin: 5px 0 0 0; color: #666; }
+        .date-box { font-weight: bold; color: #0275d8; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background-color: #0275d8; color: white; }
+        tr:hover { background-color: #f1f3f5; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>⚓ Capitainerie</h2>
+        <a href="/dashboard">🏠 Tableau de bord</a>
+        <a href="/dashboard/catways">🛶 Gestion Catways</a>
+        <a href="/dashboard/reservations">📅 Gestion Réservations</a>
+        <a href="/dashboard/users">👥 Gestion Utilisateurs</a>
+        <a href="/docs" target="_blank">📄 Doc API</a>
+        <a href="/logout" class="logout">🚪 Se déconnecter</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header-box">
+            <div class="user-info">
+                <h3>Utilisateur connecté : <%= user.username %></h3>
+                <p>Email : <%= user.email %></p>
+            </div>
+            <div class="date-box">
+                📅 <%= dateToday %>
+            </div>
+        </div>
+
+        <h2>📋 Liste des réservations globales en cours</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Catway N°</th>
+                    <th>Nom du Client</th>
+                    <th>Nom du Bateau</th>
+                    <th>Date de début</th>
+                    <th>Date de fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (reservations.length > 0) { %>
+                    <% reservations.forEach(res => { %>
+                        <tr>
+                            <td><strong><%= res.catwayNumber %></strong></td>
+                            <td><%= res.clientName %></td>
+                            <td><%= res.boatName %></td>
+                            <td><%= new Date(res.startDate).toLocaleDateString('fr-FR') %></td>
+                            <td><%= new Date(res.endDate).toLocaleDateString('fr-FR') %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #999;">Aucune réservation enregistrée pour le moment.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

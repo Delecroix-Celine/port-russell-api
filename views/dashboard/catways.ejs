@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Catways - Capitainerie</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f8f9fa; display: flex; }
+        .sidebar { width: 250px; background-color: #343a40; color: white; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .sidebar h2 { color: #0275d8; text-align: center; margin-bottom: 30px; }
+        .sidebar a { display: block; color: #ddd; padding: 12px; text-decoration: none; border-radius: 4px; margin-bottom: 10px; font-weight: bold; }
+        .sidebar a:hover { background-color: #495057; color: white; }
+        .sidebar a.logout { background-color: #d9534f; color: white; margin-top: 50px; text-align: center; }
+        .sidebar a.logout:hover { background-color: #c9302c; }
+        .main-content { flex: 1; padding: 40px; }
+        
+        .crud-container { display: flex; gap: 30px; margin-top: 20px; }
+        .table-section { flex: 2; }
+        .form-section { flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: fit-content; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background-color: #0275d8; color: white; }
+        tr:hover { background-color: #f1f3f5; }
+        
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 13px; }
+        .btn-add { background-color: #5cb85c; color: white; width: 100%; padding: 10px; margin-top: 10px; }
+        .btn-edit { background-color: #f0ad4e; color: white; margin-right: 5px; }
+        .btn-delete { background-color: #d9534f; color: white; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>⚓ Capitainerie</h2>
+        <a href="/dashboard">🏠 Tableau de bord</a>
+        <a href="/dashboard/catways">🛶 Gestion Catways</a>
+        <a href="/dashboard/reservations">📅 Gestion Réservations</a>
+        <a href="/dashboard/users">👥 Gestion Utilisateurs</a>
+        <a href="/docs" target="_blank">📄 Doc API</a>
+        <a href="/logout" class="logout">🚪 Se déconnecter</a>
+    </div>
+
+    <div class="main-content">
+        <h1>🛶 Gestion des Catways (Pontons)</h1>
+
+        <div class="crud-container">
+            <div class="table-section">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N° Catway</th>
+                            <th>Type</th>
+                            <th>État de la passerelle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% catways.forEach(catway => { %>
+                            <tr>
+                                <td><strong><%= catway.catwayNumber %></strong></td>
+                                <td><%= catway.catwayType === 'long' ? 'Long (Grand)' : 'Short (Petit)' %></td>
+                                <td><%= catway.catwayState %></td>
+                                <td>
+                                    <button class="btn btn-edit" onclick="prepareEdit('<%= catway.catwayNumber %>', '<%= catway.catwayState %>')">Modifier</button>
+                                    <button class="btn btn-delete" onclick="deleteCatway('<%= catway.catwayNumber %>')">Supprimer</button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-section">
+                <div id="add-form-container">
+                    <h3>➕ Ajouter un Catway</h3>
+                    <form action="/catways" method="POST">
+                        <div class="form-group">
+                            <label for="catwayNumber">Numéro du Catway</label>
+                            <input type="number" id="catwayNumber" name="catwayNumber" required min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="catwayType">Type</label>
+                            <select id="catwayType" name="catwayType">
+                                <option value="long">Long</option>
+                                <option value="short">Short</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="catwayState">Description de l'état</label>
+                            <textarea id="catwayState" name="catwayState" rows="3" required placeholder="Ex: Bon état, feux de signalisation à réparer..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-add">Créer le catway</button>
+                    </form>
+                </div>
+
+                <div id="edit-form-container" style="display: none;">
+                    <h3 style="color: #f0ad4e;">📝 Modifier l'état</h3>
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label>Numéro du Catway (Non modifiable)</label>
+                            <input type="text" id="editCatwayNumber" disabled style="background-color: #e9ecef;">
+                        </div>
+                        <div class="form-group">
+                            <label for="editCatwayState">Description de l'état</label>
+                            <textarea id="editCatwayState" required rows="3"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-add" style="background-color: #f0ad4e;" onclick="submitEdit()">Enregistrer les modifications</button>
+                        <button type="button" class="btn btn-delete" style="background-color: #6c757d; width: 100%; margin-top: 5px;" onclick="cancelEdit()">Annuler</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Active le formulaire de modification et le pré-remplit
+        function prepareEdit(id, state) {
+            document.getElementById('add-form-container').style.display = 'none';
+            document.getElementById('edit-form-container').style.display = 'block';
+            
+            document.getElementById('editCatwayNumber').value = id;
+            document.getElementById('editCatwayState').value = state;
+        }
+
+        function cancelEdit() {
+            document.getElementById('add-form-container').style.display = 'block';
+            document.getElementById('edit-form-container').style.display = 'none';
+        }
+
+        // Envoie la modification via la méthode PUT de ton API
+        async function submitEdit() {
+            const id = document.getElementById('editCatwayNumber').value;
+            const state = document.getElementById('editCatwayState').value;
+
+            const response = await fetch(`/catways/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ catwayState: state })
+            });
+
+            if (response.ok) {
+                window.location.reload(); // Recharge la page pour voir le changement
+            } else {
+                alert("Erreur lors de la modification");
+            }
+        }
+
+        // Envoie la suppression via la méthode DELETE de ton API
+        async function deleteCatway(id) {
+            if (confirm(`Voulez-vous vraiment supprimer le catway n° ${id} ?`)) {
+                const response = await fetch(`/catways/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert("Erreur lors de la suppression");
+                }
+            }
+        }
+    </script>
+</body>
+</html>

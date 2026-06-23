@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Réservations - Capitainerie</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f8f9fa; display: flex; }
+        .sidebar { width: 250px; background-color: #343a40; color: white; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .sidebar h2 { color: #0275d8; text-align: center; margin-bottom: 30px; }
+        .sidebar a { display: block; color: #ddd; padding: 12px; text-decoration: none; border-radius: 4px; margin-bottom: 10px; font-weight: bold; }
+        .sidebar a:hover { background-color: #495057; color: white; }
+        .sidebar a.logout { background-color: #d9534f; color: white; margin-top: 50px; text-align: center; }
+        .sidebar a.logout:hover { background-color: #c9302c; }
+        .main-content { flex: 1; padding: 40px; }
+        
+        .crud-container { display: flex; gap: 30px; margin-top: 20px; }
+        .table-section { flex: 2; }
+        .form-section { flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: fit-content; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background-color: #0275d8; color: white; }
+        tr:hover { background-color: #f1f3f5; }
+        
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 13px; }
+        .btn-add { background-color: #5cb85c; color: white; width: 100%; padding: 10px; margin-top: 10px; }
+        .btn-edit { background-color: #f0ad4e; color: white; margin-right: 5px; }
+        .btn-delete { background-color: #d9534f; color: white; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>⚓ Capitainerie</h2>
+        <a href="/dashboard">🏠 Tableau de bord</a>
+        <a href="/dashboard/catways">🛶 Gestion Catways</a>
+        <a href="/dashboard/reservations">📅 Gestion Réservations</a>
+        <a href="/dashboard/users">👥 Gestion Utilisateurs</a>
+        <a href="/docs" target="_blank">📄 Doc API</a>
+        <a href="/logout" class="logout">🚪 Se déconnecter</a>
+    </div>
+
+    <div class="main-content">
+        <h1>📅 Gestion des Réservations</h1>
+
+        <div class="crud-container">
+            <div class="table-section">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Catway N°</th>
+                            <th>Client</th>
+                            <th>Bateau</th>
+                            <th>Début</th>
+                            <th>Fin</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (reservations.length > 0) { %>
+                            <% reservations.forEach(res => { %>
+                                <tr>
+                                    <td><strong><%= res.catwayNumber %></strong></td>
+                                    <td><%= res.clientName %></td>
+                                    <td><%= res.boatName %></td>
+                                    <td><%= new Date(res.startDate).toLocaleDateString('fr-FR') %></td>
+                                    <td><%= new Date(res.endDate).toLocaleDateString('fr-FR') %></td>
+                                    <td>
+                                        <button class="btn btn-edit" onclick="prepareEdit('<%= res._id %>', '<%= res.catwayNumber %>', '<%= res.clientName %>', '<%= res.boatName %>', '<%= res.startDate %>','<%= res.endDate %>')">Modifier</button>
+                                        <button class="btn btn-delete" onclick="deleteReservation('<%= res.catwayNumber %>', '<%= res._id %>')">Supprimer</button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #999;">Aucune réservation pour le moment.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-section">
+                <div id="add-form-container">
+                    <h3>➕ Créer une Réservation</h3>
+                    <form id="addReservationForm">
+                        <div class="form-group">
+                            <label for="catwayNumberSelect">Sélectionner un Catway</label>
+                            <select id="catwayNumberSelect" required>
+                                <% catways.forEach(catway => { %>
+                                    <option value="<%= catway.catwayNumber %>">Catway n° <%= catway.catwayNumber %> (<%= catway.catwayType %>)</option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientName">Nom du Client</label>
+                            <input type="text" id="clientName" required placeholder="Ex: Paul Martin">
+                        </div>
+                        <div class="form-group">
+                            <label for="boatName">Nom du Bateau</label>
+                            <input type="text" id="boatName" required placeholder="Ex: L'Espadon">
+                        </div>
+                        <div class="form-group">
+                            <label for="startDate">Date de début</label>
+                            <input type="date" id="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">Date de fin</label>
+                            <input type="date" id="endDate" required>
+                        </div>
+                        <button type="button" class="btn btn-add" onclick="submitAdd()">Enregistrer la réservation</button>
+                    </form>
+                </div>
+
+                <div id="edit-form-container" style="display: none;">
+                    <h3 style="color: #f0ad4e;">📝 Modifier la Réservation</h3>
+                    <form id="editReservationForm">
+                        <input type="hidden" id="editResId">
+                        <div class="form-group">
+                            <label>Catway lié (Non modifiable)</label>
+                            <input type="text" id="editCatwayNumber" disabled style="background-color: #e9ecef;">
+                        </div>
+                        <div class="form-group">
+                            <label for="editClientName">Nom du Client</label>
+                            <input type="text" id="editClientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editBoatName">Nom du Bateau</label>
+                            <input type="text" id="editBoatName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editStartDate">Date de début</label>
+                            <input type="date" id="editStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEndDate">Date de fin</label>
+                            <input type="date" id="editEndDate" required>
+                        </div>
+                        <button type="button" class="btn btn-add" style="background-color: #f0ad4e;" onclick="submitEdit()">Enregistrer les modifications</button>
+                        <button type="button" class="btn btn-delete" style="background-color: #6c757d; width: 100%; margin-top: 5px;" onclick="cancelEdit()">Annuler</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Soumission de l'ajout via l'API en POST
+        async function submitAdd() {
+            const catwayId = document.getElementById('catwayNumberSelect').value;
+            const data = {
+                clientName: document.getElementById('clientName').value,
+                boatName: document.getElementById('boatName').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value
+            };
+
+            const response = await fetch(`/catways/${catwayId}/reservations`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert("Erreur lors de la création de la réservation");
+            }
+        }
+
+        // Active l'interface de modification
+        function prepareEdit(id, catwayNum, client, boat, start, end) {
+            document.getElementById('add-form-container').style.display = 'none';
+            document.getElementById('edit-form-container').style.display = 'block';
+
+            document.getElementById('editResId').value = id;
+            document.getElementById('editCatwayNumber').value = catwayNum;
+            document.getElementById('editClientName').value = client;
+            document.getElementById('editBoatName').value = boat;
+            
+            // Formatage de la date en AAAA-MM-JJ pour l'input de type "date"
+            document.getElementById('editStartDate').value = new Date(start).toISOString().split('T')[0];
+            document.getElementById('editEndDate').value = new Date(end).toISOString().split('T')[0];
+        }
+
+        function cancelEdit() {
+            document.getElementById('add-form-container').style.display = 'block';
+            document.getElementById('edit-form-container').style.display = 'none';
+        }
+
+        // Envoi de la modification via le PUT de l'API
+        async function submitEdit() {
+            const resId = document.getElementById('editResId').value;
+            const catwayId = document.getElementById('editCatwayNumber').value;
+            const data = {
+                clientName: document.getElementById('editClientName').value,
+                boatName: document.getElementById('editBoatName').value,
+                startDate: document.getElementById('editStartDate').value,
+                endDate: document.getElementById('editEndDate').value
+            };
+
+            const response = await fetch(`/catways/${catwayId}/reservations/${resId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert("Erreur lors de la modification");
+            }
+        }
+
+        // Suppression d'une réservation via le DELETE de l'API
+        async function deleteReservation(catwayId, resId) {
+            if (confirm("Voulez-vous vraiment supprimer cette réservation ?")) {
+                const response = await fetch(`/catways/${catwayId}/reservations/${resId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert("Erreur lors de la suppression");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
